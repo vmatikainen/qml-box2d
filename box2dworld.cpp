@@ -120,6 +120,8 @@ void ContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impu
     emit mWorld->postSolve(&mContact);
 }
 
+static Box2DWorld * mDefaultWorld;
+
 Box2DWorld::Box2DWorld(QObject *parent) :
     QObject(parent),
     mWorld(b2Vec2(0.0f, -10.0f)),
@@ -137,6 +139,8 @@ Box2DWorld::Box2DWorld(QObject *parent) :
 
 {
     mWorld.SetDestructionListener(this);
+    if (!mDefaultWorld)
+        mDefaultWorld = this;
 }
 
 Box2DWorld::~Box2DWorld()
@@ -149,6 +153,8 @@ Box2DWorld::~Box2DWorld()
     for (b2Joint *joint = mWorld.GetJointList(); joint; joint = joint->GetNext())
         toBox2DJoint(joint)->nullifyJoint();
     enableContactListener(false);
+    if (mDefaultWorld == this)
+        mDefaultWorld = 0;
 }
 
 void Box2DWorld::setTimeStep(float timeStep)
@@ -366,4 +372,9 @@ void Box2DWorld::setWindow(QQuickWindow* arg)
     m_window = arg;
     connect(m_window, SIGNAL(afterAnimating()), this, SLOT(step()));
     emit windowChanged(arg);
+}
+
+Box2DWorld *Box2DWorld::defaultWorld()
+{
+    return mDefaultWorld;
 }
