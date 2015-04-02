@@ -1,6 +1,5 @@
 /*
-* Copyright (c) 2011 Erin Catto http://box2d.org
-* Copyright (c) 2014 Google, Inc.
+* Copyright (c) 2013 Google, Inc.
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -16,35 +15,43 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
-
-#ifndef B2_TIMER_H
-#define B2_TIMER_H
+#ifndef B2_STAT
+#define B2_STAT
 
 #include <Box2D/Common/b2Settings.h>
 
-/// Timer for profiling. This has platform specific code and may
-/// not work on every platform.
-class b2Timer
+/// Calculates min/max/mean of a set of samples
+class b2Stat
 {
 public:
+	b2Stat();
 
-	/// Constructor
-	b2Timer();
+	/// Record a sample
+	void Record( float32 t );
 
-	/// Reset the timer.
-	void Reset();
+	/// Returns the number of recorded samples
+	int GetCount() const;
 
-	/// Get the time since construction or the last reset.
-	float32 GetMilliseconds() const;
+	/// Returns the mean of all recorded samples,
+	/// Returns 0 if there are no recorded samples
+	float32 GetMean() const;
 
+	/// Returns the min of all recorded samples,
+	/// FLT_MAX if there are no recorded samples
+	float32 GetMin() const;
+
+	/// Returns the max of all recorded samples,
+	/// -FLT_MAX if there are no recorded samples
+	float32 GetMax() const;
+
+	/// Erase all recorded samples
+	void Clear();
 private:
-	/// Get platform specific tick count
-	static int64 GetTicks();
 
-#if defined(_WIN32)
-	static float64 s_invFrequency;
-#endif
-	int64 m_start;
+	int m_count;
+	float64 m_total;
+	float32 m_min;
+	float32 m_max;
 };
 
 #endif

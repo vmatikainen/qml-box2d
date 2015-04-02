@@ -1,6 +1,5 @@
 /*
-* Copyright (c) 2011 Erin Catto http://box2d.org
-* Copyright (c) 2014 Google, Inc.
+* Copyright (c) 2013 Google, Inc.
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -16,35 +15,23 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
+#include <Box2D/Particle/b2ParticleAssembly.h>
+#include <Box2D/Particle/b2ParticleSystem.h>
 
-#ifndef B2_TIMER_H
-#define B2_TIMER_H
+extern "C" {
 
-#include <Box2D/Common/b2Settings.h>
-
-/// Timer for profiling. This has platform specific code and may
-/// not work on every platform.
-class b2Timer
+// Helper function, called from assembly routine.
+void GrowParticleContactBuffer(
+	b2GrowableBuffer<b2ParticleContact>& contacts)
 {
-public:
+	// Set contacts.count = capacity instead of count because there are
+	// items past the end of the array waiting to be post-processed.
+	// We must maintain the entire contacts array.
+	// TODO: It would be better to have the items awaiting post-processing
+	// in their own array on the stack.
+	contacts.SetCount(contacts.GetCapacity());
+	contacts.Grow();
+}
 
-	/// Constructor
-	b2Timer();
+} // extern "C"
 
-	/// Reset the timer.
-	void Reset();
-
-	/// Get the time since construction or the last reset.
-	float32 GetMilliseconds() const;
-
-private:
-	/// Get platform specific tick count
-	static int64 GetTicks();
-
-#if defined(_WIN32)
-	static float64 s_invFrequency;
-#endif
-	int64 m_start;
-};
-
-#endif

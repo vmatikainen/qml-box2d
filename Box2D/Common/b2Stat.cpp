@@ -1,6 +1,5 @@
 /*
-* Copyright (c) 2011 Erin Catto http://box2d.org
-* Copyright (c) 2014 Google, Inc.
+* Copyright (c) 2013 Google, Inc.
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -16,35 +15,53 @@
 * misrepresented as being the original software.
 * 3. This notice may not be removed or altered from any source distribution.
 */
+#include "b2Stat.h"
 
-#ifndef B2_TIMER_H
-#define B2_TIMER_H
+#include <algorithm>
+#include <cfloat>
 
-#include <Box2D/Common/b2Settings.h>
-
-/// Timer for profiling. This has platform specific code and may
-/// not work on every platform.
-class b2Timer
+b2Stat::b2Stat()
 {
-public:
+	Clear();
+}
 
-	/// Constructor
-	b2Timer();
+void b2Stat::Record( float32 t )
+{
+	m_total += t;
+	m_min = std::min(m_min,t);
+	m_max = std::max(m_max,t);
+	m_count++;
+}
 
-	/// Reset the timer.
-	void Reset();
+int b2Stat::GetCount() const
+{
+	return m_count;
+}
 
-	/// Get the time since construction or the last reset.
-	float32 GetMilliseconds() const;
+float32 b2Stat::GetMean() const
+{
+	if (m_count == 0)
+	{
+		return 0.0f;
+	}
+	return (float32)(m_total / m_count);
+}
 
-private:
-	/// Get platform specific tick count
-	static int64 GetTicks();
+float32 b2Stat::GetMin() const
+{
+	return m_min;
+}
 
-#if defined(_WIN32)
-	static float64 s_invFrequency;
-#endif
-	int64 m_start;
-};
+float32 b2Stat::GetMax() const
+{
+	return m_max;
+}
 
-#endif
+void b2Stat::Clear()
+{
+	m_count = 0;
+	m_total = 0;
+	m_min = FLT_MAX;
+	m_max = -FLT_MAX;
+}
+
