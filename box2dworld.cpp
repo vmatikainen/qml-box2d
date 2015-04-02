@@ -47,7 +47,7 @@ int StepDriver::duration() const
 
 void StepDriver::updateCurrentTime(int)
 {
-    mWorld->step();
+//    mWorld->step();
 }
 
 
@@ -289,11 +289,26 @@ void Box2DWorld::step()
     // Update Box2D state before stepping
     for (b2Body *body = mWorld.GetBodyList(); body; body = body->GetNext()) {
         Box2DBody *b = toBox2DBody(body);
-        if (b->transformDirty() && b->isActive())
-            b->updateTransform();
+        if (b->transformDirty() && b->isActive()) {
+            if (b->bodyType() != Box2DBody::Kinematic) {
+                b->updateTransform();
+            } else {
+                b->followTarget();
+            }
+        }
     }
 
     mWorld.Step(mTimeStep, mVelocityIterations, mPositionIterations);
+
+    for (b2Body *body = mWorld.GetBodyList(); body; body = body->GetNext()) {
+        Box2DBody *b = toBox2DBody(body);
+        if (b->isActive()) {
+            if (b->bodyType() == Box2DBody::Kinematic) {
+                b->setLinearVelocity(QPointF());
+                b->setAngularVelocity(0);
+            }
+        }
+    }
 
     b2Timer timer;
 
@@ -336,4 +351,19 @@ void Box2DWorld::rayCast(Box2DRayCast *rayCast,
                          const QPointF &point2)
 {
     mWorld.RayCast(rayCast, toMeters(point1), toMeters(point2));
+}
+
+QQuickWindow *Box2DWorld::window() const
+{
+    return m_window;
+}
+
+void Box2DWorld::setWindow(QQuickWindow* arg)
+{
+    if (m_window == arg)
+        return;
+
+    m_window = arg;
+    connect(m_window, SIGNAL(afterAnimating()), this, SLOT(step()));
+    emit windowChanged(arg);
 }

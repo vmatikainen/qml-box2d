@@ -30,6 +30,7 @@
 
 #include <QAbstractAnimation>
 #include <QQuickItem>
+#include <QQuickWindow>
 
 #include <Box2D.h>
 
@@ -121,6 +122,7 @@ class Box2DWorld : public QObject, public QQmlParserStatus, b2DestructionListene
     Q_PROPERTY(Box2DProfile *profile READ profile NOTIFY stepped)
     Q_PROPERTY(float pixelsPerMeter READ pixelsPerMeter WRITE setPixelsPerMeter NOTIFY pixelsPerMeterChanged)
     Q_PROPERTY(bool enableContactEvents READ enableContactEvents WRITE setEnableContactEvents NOTIFY enableContactEventsChanged)
+    Q_PROPERTY(QQuickWindow* window READ window WRITE setWindow NOTIFY windowChanged)
 
     Q_INTERFACES(QQmlParserStatus)
 
@@ -175,11 +177,16 @@ public:
     void SayGoodbye(b2Joint *joint);
     void SayGoodbye(b2Fixture *fixture);
 
-    Q_INVOKABLE void step();
     Q_INVOKABLE void clearForces();
     Q_INVOKABLE void rayCast(Box2DRayCast *rayCast,
                              const QPointF &point1,
                              const QPointF &point2);
+
+    QQuickWindow* window() const;
+
+public slots:
+    void step();
+    void setWindow(QQuickWindow *arg);
 
 signals:
     void preSolve(Box2DContact * contact);
@@ -194,6 +201,8 @@ signals:
     void stepped();
     void enableContactEventsChanged();
     void pixelsPerMeterChanged();
+
+    void windowChanged(QQuickWindow* arg);
 
 protected:
     void enableContactListener(bool enable);
@@ -211,6 +220,7 @@ private:
     Box2DProfile *mProfile;
     bool mEnableContactEvents;
     float mPixelsPerMeter;
+    QQuickWindow* m_window;
 };
 
 
@@ -412,6 +422,35 @@ inline float toDegrees(float radians)
 inline float toRadians(float degrees)
 {
     return -degrees * b2_pi / 180;
+}
+
+/**
+ * Unwinds an angle to range [0, 2PI[
+ */
+inline float unwind(float angle)
+{
+    float two_pi = 2 * b2_pi;
+    while(true) {
+        if (angle >= two_pi) {
+            angle -= two_pi;
+        } else if (angle < 0) {
+            angle += two_pi;
+        } else {
+            return angle;
+        }
+    }
+}
+
+/**
+ * Finds angular difference between two angles
+ */
+inline float angleBetween(float a, float b) {
+    float angle = unwind(a) - unwind(b);
+    if (angle > b2_pi)
+        angle -= 2*b2_pi;
+    else if (angle < -b2_pi)
+        angle += 2*b2_pi;
+    return angle;
 }
 
 

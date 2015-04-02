@@ -39,7 +39,8 @@ SOURCES += box2dplugin.cpp \
     box2dmousejoint.cpp \
     box2dgearjoint.cpp \
     box2dropejoint.cpp \
-    box2draycast.cpp
+    box2draycast.cpp \
+    box2dparticlesystem.cpp
 
 HEADERS += \
     box2dplugin.h \
@@ -60,4 +61,5 @@ HEADERS += \
     box2dmousejoint.h \
     box2dgearjoint.h \
     box2dropejoint.h \
-    box2draycast.h
+    box2draycast.h \
+    box2dparticlesystem.h

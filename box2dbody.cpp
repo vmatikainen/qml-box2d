@@ -283,13 +283,13 @@ void Box2DBody::synchronize()
     Q_ASSERT(mBody);
 
     if (sync(mBodyDef.position, mBody->GetPosition())) {
-        if (mTarget)
+        if (mTarget && bodyType() != Kinematic)
             mTarget->setPosition(mWorld->toPixels(mBodyDef.position));
         emit positionChanged();
     }
 
     if (sync(mBodyDef.angle, mBody->GetAngle()))
-        if (mTarget)
+        if (mTarget && bodyType() != Kinematic)
             mTarget->setRotation(toDegrees(mBodyDef.angle));
 }
 
@@ -354,6 +354,26 @@ void Box2DBody::updateTransform()
     mBodyDef.position = mWorld->toMeters(mTarget->position());
     mBodyDef.angle = toRadians(mTarget->rotation());
     mBody->SetTransform(mBodyDef.position, mBodyDef.angle);
+    mTransformDirty = false;
+}
+
+void Box2DBody::followTarget()
+{
+    Q_ASSERT(mTarget);
+    Q_ASSERT(mBody);
+    Q_ASSERT(mTransformDirty);
+
+//    QQuickItem* worldParent = qobject_cast<QQuickItem*>(mWorld->parent());
+
+//    QPointF targetPosition = worldParent->mapFromItem(mTarget, QPointF());
+    mBodyDef.linearVelocity = mWorld->toMeters(mTarget->position()) - mBodyDef.position;
+    qDebug() << Q_FUNC_INFO << mBodyDef.linearVelocity.x << mBodyDef.linearVelocity.y;
+//    mBodyDef.linearVelocity = mWorld->toMeters(targetPosition) - mBodyDef.position;
+    mBodyDef.linearVelocity.x /= mWorld->timeStep();
+    mBodyDef.linearVelocity.y /= mWorld->timeStep();
+    mBodyDef.angularVelocity = angleBetween(toRadians(mTarget->rotation()), mBodyDef.angle) / mWorld->timeStep();
+    mBody->SetLinearVelocity(mBodyDef.linearVelocity);
+    mBody->SetAngularVelocity(mBodyDef.angularVelocity);
     mTransformDirty = false;
 }
 
