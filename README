@@ -6,20 +6,23 @@ Notable changes:
  - LiquidFun merged
  - Working WaveMachine example 
  - Kinematic bodies are changed, so their position is handled from QML side.
-   Setting a velocity on them does nothing, but changing their QQuickItem target position
-   will make them follow it. I added a reverse velocity calculation to the box2dworld for these
-   cases, so the dynamic objects should act accordingly when coming to contact with kinematic
-   bodies. 
-   The motivation for this, is that I find it more natural to control the animations from
-   QML side.
- - The physics engine stepping bindings are changed to after QQuickWindow afterAnimating-
-   signal. This was to get it in sync with the kinematic body change mentioned above.
- - Also the timed stepping is removed and the box2dworld is changed to QQuickItem, which binds
-   the physics stepping to QQuickWindow afterAnimating signal.
+   Setting a velocity on them does nothing, but changing their QQuickItem 
+   target position will make them follow it. I added a reverse velocity 
+   calculation to the box2dworld for these cases, so the dynamic objects 
+   should act accordingly when coming to contact with kinematic bodies. 
+   The motivation for this, is that I find it more natural to control the 
+   animations from QML side.
+ - The physics engine stepping bindings are changed to after QQuickWindow 
+   afterAnimating-signal. This was to get it in sync with the kinematic body
+   change mentioned above.
+ - Also the timed stepping is removed and the box2dworld is changed to 
+   QQuickItem, which binds the physics stepping to QQuickWindow afterAnimating
+   signal.
    
 Known issues:
- - If the window goes in background, but there are some running kinematic animations, it will
-   mess the physics engine state and particles (at least) escape boxes and so on. 
+ - If the window goes in background, but there are some running kinematic 
+   animations, it will mess the physics engine state and particles (at least) 
+   escape boxes and so on. 
 
 ---- Original README
 
