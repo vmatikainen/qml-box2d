@@ -109,7 +109,7 @@ private:
 /**
  * Wrapper class around a Box2D world.
  */
-class Box2DWorld : public QObject, public QQmlParserStatus, b2DestructionListener
+class Box2DWorld : public QQuickItem, public QQmlParserStatus, b2DestructionListener
 {
     Q_OBJECT
 
@@ -122,12 +122,12 @@ class Box2DWorld : public QObject, public QQmlParserStatus, b2DestructionListene
     Q_PROPERTY(Box2DProfile *profile READ profile NOTIFY stepped)
     Q_PROPERTY(float pixelsPerMeter READ pixelsPerMeter WRITE setPixelsPerMeter NOTIFY pixelsPerMeterChanged)
     Q_PROPERTY(bool enableContactEvents READ enableContactEvents WRITE setEnableContactEvents NOTIFY enableContactEventsChanged)
-    Q_PROPERTY(QQuickWindow* window READ window WRITE setWindow NOTIFY windowChanged)
+//    Q_PROPERTY(QQuickWindow* window READ window WRITE setWindow NOTIFY windowChanged)
 
     Q_INTERFACES(QQmlParserStatus)
 
 public:
-    explicit Box2DWorld(QObject *parent = 0);
+    explicit Box2DWorld(QQuickItem *parent = 0);
     ~Box2DWorld();
 
     float timeStep() const;
@@ -183,11 +183,11 @@ public:
                              const QPointF &point2);
     static Box2DWorld * defaultWorld();
 
-    QQuickWindow* window() const;
+//    QQuickWindow* window() const;
 
 public slots:
     void step();
-    void setWindow(QQuickWindow *arg);
+    void setRenderingWindow(QQuickWindow *arg);
 
 signals:
     void preSolve(Box2DContact * contact);
@@ -203,7 +203,7 @@ signals:
     void enableContactEventsChanged();
     void pixelsPerMeterChanged();
 
-    void windowChanged(QQuickWindow* arg);
+//    void windowChanged(QQuickWindow* arg);
 
 protected:
     void enableContactListener(bool enable);

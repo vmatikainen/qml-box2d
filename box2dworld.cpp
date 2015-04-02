@@ -122,8 +122,8 @@ void ContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impu
 
 static Box2DWorld * mDefaultWorld;
 
-Box2DWorld::Box2DWorld(QObject *parent) :
-    QObject(parent),
+Box2DWorld::Box2DWorld(QQuickItem *parent) :
+    QQuickItem(parent),
     mWorld(b2Vec2(0.0f, -10.0f)),
     mContactListener(0),
     mTimeStep(1.0f / 60.0f),
@@ -141,6 +141,8 @@ Box2DWorld::Box2DWorld(QObject *parent) :
     mWorld.SetDestructionListener(this);
     if (!mDefaultWorld)
         mDefaultWorld = this;
+
+    connect(this, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(setRenderingWindow(QQuickWindow*)));
 }
 
 Box2DWorld::~Box2DWorld()
@@ -359,13 +361,14 @@ void Box2DWorld::rayCast(Box2DRayCast *rayCast,
     mWorld.RayCast(rayCast, toMeters(point1), toMeters(point2));
 }
 
-QQuickWindow *Box2DWorld::window() const
-{
-    return m_window;
-}
+//QQuickWindow *Box2DWorld::window() const
+//{
+//    return m_window;
+//}
 
-void Box2DWorld::setWindow(QQuickWindow* arg)
+void Box2DWorld::setRenderingWindow(QQuickWindow* arg)
 {
+    qDebug() << Q_FUNC_INFO << arg;
     if (m_window == arg)
         return;
 

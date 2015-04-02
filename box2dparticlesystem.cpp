@@ -7,18 +7,18 @@ Box2dParticleSystem::Box2dParticleSystem(QObject *parent) :
   , m_particleSystem(0)
   , m_particleHandle(0)
   , m_particleRadius(1.0)
+  , m_damping(1.0)
 {
 }
 
-void Box2dParticleSystem::addParticle(int x, int y)
+void Box2dParticleSystem::addParticle(qreal x, qreal y)
 {
     if (m_world && m_particleSystem) {
         b2ParticleDef pd;
         pd.flags = b2_elasticParticle;
         pd.color.Set(0, 0, 255, 255);
         pd.position.Set(x, y);
-        m_particleSystem->SetRadius(m_particleRadius);
-        int tempIndex = m_particleSystem->CreateParticle(pd);
+        m_particleSystem->CreateParticle(pd);
     }
 }
 
@@ -36,8 +36,25 @@ void Box2dParticleSystem::setParticleRadius(qreal arg)
     emit particleRadiusChanged(arg);
 }
 
+void Box2dParticleSystem::setDamping(qreal arg)
+{
+    if (m_damping == arg)
+        return;
+
+    m_damping = arg;
+
+    if (m_particleSystem) {
+        m_particleSystem->SetDamping(m_damping);
+    }
+    emit dampingChanged(arg);
+}
+
 QList<qreal> Box2dParticleSystem::particleCoordinates()
 {
+    if (!m_particleSystem) {
+        return QList<qreal>();
+    }
+
     QList<qreal> ret;
     int count = m_particleSystem->GetParticleCount();
     b2Vec2* positions = m_particleSystem->GetPositionBuffer();
@@ -54,6 +71,11 @@ qreal Box2dParticleSystem::particleRadius() const
     return m_particleRadius;
 }
 
+qreal Box2dParticleSystem::damping() const
+{
+    return m_damping;
+}
+
 Box2DWorld *Box2dParticleSystem::world() const
 {
     return m_world;
@@ -63,6 +85,9 @@ void Box2dParticleSystem::createParticleSystem()
 {
     const b2ParticleSystemDef particleSystemDef;
     m_particleSystem = m_world->world().CreateParticleSystem(&particleSystemDef);
+
+    m_particleSystem->SetRadius(m_particleRadius);
+    m_particleSystem->SetDamping(m_damping);
 }
 
 void Box2dParticleSystem::setWorld(Box2DWorld *world)

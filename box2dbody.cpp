@@ -393,12 +393,9 @@ void Box2DBody::followTarget()
     Q_ASSERT(mBody);
     Q_ASSERT(mTransformDirty);
 
-//    QQuickItem* worldParent = qobject_cast<QQuickItem*>(mWorld->parent());
-
-//    QPointF targetPosition = worldParent->mapFromItem(mTarget, QPointF());
-    mBodyDef.linearVelocity = mWorld->toMeters(mTarget->position()) - mBodyDef.position;
-    qDebug() << Q_FUNC_INFO << mBodyDef.linearVelocity.x << mBodyDef.linearVelocity.y;
-//    mBodyDef.linearVelocity = mWorld->toMeters(targetPosition) - mBodyDef.position;
+    mBodyDef.linearVelocity = mWorld->toMeters(mTarget->transformOrigin() == QQuickItem::TopLeft ?
+                                                   mTarget->position() :
+                                                   mTarget->position() + originOffset() ) - mBodyDef.position;
     mBodyDef.linearVelocity.x /= mWorld->timeStep();
     mBodyDef.linearVelocity.y /= mWorld->timeStep();
     mBodyDef.angularVelocity = angleBetween(toRadians(mTarget->rotation()), mBodyDef.angle) / mWorld->timeStep();

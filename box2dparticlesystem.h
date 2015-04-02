@@ -13,6 +13,7 @@ class Box2dParticleSystem : public QObject
 
     Q_PROPERTY(Box2DWorld *world READ world WRITE setWorld NOTIFY worldChanged)
     Q_PROPERTY(qreal particleRadius READ particleRadius WRITE setParticleRadius NOTIFY particleRadiusChanged)
+    Q_PROPERTY(qreal damping READ damping WRITE setDamping NOTIFY dampingChanged)
 
 public:
     explicit Box2dParticleSystem(QObject *parent = 0);
@@ -21,21 +22,24 @@ public:
     Q_INVOKABLE QList<qreal> particleCoordinates();
 
     qreal particleRadius() const;
+    qreal damping() const;
 
 signals:
     void worldChanged(Box2DWorld * arg);
-
     void particleRadiusChanged(qreal arg);
+    void dampingChanged(qreal arg);
 
 public slots:
     void setWorld(Box2DWorld *world);
     void printParticleData();
-    void addParticle(int x, int y);
-
+    void addParticle(qreal x, qreal y);
     void setParticleRadius(qreal arg);
+    void setDamping(qreal arg);
 
 private:
     void createParticleSystem();
+
+    qreal m_damping;
 
 protected:
     Box2DWorld* m_world;
